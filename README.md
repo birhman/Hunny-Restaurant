@@ -45,7 +45,7 @@ To set up this project locally:
 git clone https://github.com/birhman/hunny's_restaurant.git
 
 # Navigate to the project directory
-cd hunnys-restaurant
+cd hunny's_restaurant
 ```
 
 ### Database Setup
