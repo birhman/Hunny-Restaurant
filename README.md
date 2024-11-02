@@ -12,8 +12,11 @@ Hunny has shared with us 3 key datasets for this case study:
 - **menu**
 - **members**
 
-Entity Relationship Diagram:
-![image](https://github.com/user-attachments/assets/1e35110f-5980-46d2-bc38-045dff95cd19)
+The **sales table** captures all customer_id level purchases with an corresponding **order_date** and **product_id** information for when and what menu items were ordered.
+
+The **menu table** maps the **product_id** to the actual **product_name** and **price** of each menu item.
+
+The final **members table** captures the **join_date** when a customer_id joined the beta version of the Hunny's Restaurant  loyalty program.
 
 
 ## Case Study Questions
