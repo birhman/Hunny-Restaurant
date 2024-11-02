@@ -12,6 +12,10 @@ Hunny has shared with us 3 key datasets for this case study:
 - **menu**
 - **members**
 
+Entity Relationship Diagram:
+![image](https://github.com/user-attachments/assets/1e35110f-5980-46d2-bc38-045dff95cd19)
+
+
 ## Case Study Questions
 
 1. What is the total amount each customer spent at the restaurant?
