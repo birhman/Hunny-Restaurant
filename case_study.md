@@ -1,19 +1,23 @@
-#Case Study Questions
+### 1. What is the total amount each customer spent at the restaurant?
 
-##What is the total amount each customer spent at the restaurant?
+```sql
 SELECT s.customer_id, SUM(m.price) AS total_spent
 FROM sales s
 JOIN menu m ON s.product_id = m.product_id
 GROUP BY s.customer_id;
+```
 
+### 2. How many days has each customer visited the restaurant?
 
-##How many days has each customer visited the restaurant?
+```sql
 SELECT customer_id, COUNT(DISTINCT order_date) AS days_visited
 FROM sales
 GROUP BY customer_id;
+```
 
+### 3. What was the first item from the menu purchased by each customer?
 
-##What was the first item from the menu purchased by each customer?
+```sql
 WITH ranked_orders AS (
     SELECT s.customer_id, m.product_name, s.order_date,
            ROW_NUMBER() OVER(PARTITION BY s.customer_id ORDER BY s.order_date) AS r
@@ -23,59 +27,68 @@ WITH ranked_orders AS (
 SELECT customer_id, product_name AS first_product
 FROM ranked_orders
 WHERE r = 1;
+```
 
+### 4. What is the most purchased item on the menu and how many times was it purchased by all customers?
 
-##What is the most purchased item on the menu and how many times was it purchased by all customers?
+```sql
 SELECT product_name, COUNT(*) AS total_purchases
 FROM sales s
 JOIN menu m ON s.product_id = m.product_id
 GROUP BY product_name
 ORDER BY total_purchases DESC
 LIMIT 1;
+```
 
+### 5. Which item was the most popular for each customer?
 
-##Which item was the most popular for each customer?
-with ranking as(
-	select s.customer_id as Customer, m.product_name as Product, row_number() over(partition by s.customer_id order by count(s.product_id) desc) as r
-    from sales s
-    join menu m on s.product_id = m.product_id
-    group by s.customer_id, s.product_id, m.product_name
+```sql
+WITH ranking AS (
+    SELECT s.customer_id AS Customer, m.product_name AS Product, 
+           ROW_NUMBER() OVER(PARTITION BY s.customer_id ORDER BY COUNT(s.product_id) DESC) AS r
+    FROM sales s
+    JOIN menu m ON s.product_id = m.product_id
+    GROUP BY s.customer_id, s.product_id, m.product_name
 )
-select Customer, Product
-from ranking where r = 1; 
+SELECT Customer, Product
+FROM ranking WHERE r = 1; 
+```
 
+### 6. Which item was purchased first by the customer after they became a member?
 
-##Which item was purchased first by the customer after they became a member?
-with first_order as(
-	select s.customer_id, s.product_id, mb.join_date, s.order_date,
-    row_number() over(partition by s.customer_id order by s.order_date) as num
-    from sales s
-    join members mb on s.customer_id = mb.customer_id and mb.join_date < s.order_date
-    )
-    
-    select f.customer_id, m.product_name, f.join_date, order_date
-    from first_order f
-    join menu m on f.product_id = m.product_id
-    where num = 1
-    order by f.customer_id;
+```sql
+WITH first_order AS (
+    SELECT s.customer_id, s.product_id, mb.join_date, s.order_date,
+           ROW_NUMBER() OVER(PARTITION BY s.customer_id ORDER BY s.order_date) AS num
+    FROM sales s
+    JOIN members mb ON s.customer_id = mb.customer_id AND mb.join_date < s.order_date
+)
+SELECT f.customer_id, m.product_name, f.join_date, order_date
+FROM first_order f
+JOIN menu m ON f.product_id = m.product_id
+WHERE num = 1
+ORDER BY f.customer_id;
+```
 
+### 7. Which item was purchased just before the customer became a member?
 
-##Which item was purchased just before the customer became a member?
-with first_order as(
-	select s.customer_id, s.product_id, mb.join_date, s.order_date,
-    row_number() over(partition by s.customer_id order by s.order_date desc) as num
-    from sales s
-    join members mb on s.customer_id = mb.customer_id and mb.join_date > s.order_date
-    )
-    
-    select f.customer_id, m.product_name, f.join_date, order_date
-    from first_order f
-    join menu m on f.product_id = m.product_id
-    where num = 1
-    order by f.customer_id;
+```sql
+WITH first_order AS (
+    SELECT s.customer_id, s.product_id, mb.join_date, s.order_date,
+           ROW_NUMBER() OVER(PARTITION BY s.customer_id ORDER BY s.order_date DESC) AS num
+    FROM sales s
+    JOIN members mb ON s.customer_id = mb.customer_id AND mb.join_date > s.order_date
+)
+SELECT f.customer_id, m.product_name, f.join_date, order_date
+FROM first_order f
+JOIN menu m ON f.product_id = m.product_id
+WHERE num = 1
+ORDER BY f.customer_id;
+```
 
+### 8. What is the total items and amount spent for each member before they became a member?
 
-##What is the total items and amount spent for each member before they became a member?
+```sql
 WITH first_order AS (
     SELECT s.customer_id, s.product_id, mb.join_date, s.order_date,
            COUNT(s.product_id) AS product_count
@@ -89,9 +102,11 @@ SELECT f.customer_id,
 FROM first_order f
 JOIN menu m ON f.product_id = m.product_id
 GROUP BY f.customer_id;
+```
 
+### 9. If each ₹1 spent equates to 1 points and biryani has a 2x points multiplier - how many points would each customer have?
 
-##If each $1 spent equates to 10 points and sushi has a 2x points multiplier - how many points would each customer have?
+```sql
 WITH first_order AS (
     SELECT s.customer_id, s.product_id,
            COUNT(s.product_id) AS product_count
@@ -107,10 +122,11 @@ SELECT f.customer_id,
 FROM first_order f
 JOIN menu m ON f.product_id = m.product_id
 GROUP BY f.customer_id;
+```
 
+### 10. In the first week after a customer joins the program (including their join date), they earn 2x points on all items, not just biryani - how many points do customer A and B have at the end of January?
 
-##In the first week after a customer joins the program (including their join date), they earn 2x points on all items, not just sushi - 
-how many points do customer A and B have at the end of January?
+```sql
 SELECT 
     s.customer_id,
     SUM(
@@ -123,6 +139,7 @@ SELECT
 FROM sales s
 JOIN members mb ON s.customer_id = mb.customer_id
 JOIN menu m ON s.product_id = m.product_id
-WHERE s.order_date <= '2021-01-31' AND s.customer_id IN ('A', 'B')    -- Focusing on customers A and B
+WHERE s.order_date <= '2021-01-31'
 GROUP BY s.customer_id
-order by mb.customer_id;
+ORDER BY mb.customer_id;
+```
